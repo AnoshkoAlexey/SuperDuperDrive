@@ -13,7 +13,7 @@ public interface NoteMapper {
     Integer insert(Note note);
 
     @Select("SELECT * FROM notes WHERE noteid = #{noteId} AND userid = #{userId}")
-    Note selectById(Integer noteId, Integer userid);
+    Note selectById(Integer noteId, Integer userId);
 
     @Select("SELECT * FROM notes WHERE noteid = #{noteId}")
     List<Note> select(Note note);
@@ -24,7 +24,7 @@ public interface NoteMapper {
     @Select("SELECT * FROM notes WHERE userid = #{userId}")
     List<Note> selectByUser(User user);
 
-    @Update("UPDATE notes SET notetitle = #{noteTitle}, notedescription = #{notedescription} WHERE noteid = #{noteId}")
+    @Update("UPDATE notes SET notetitle = #{noteTitle}, notedescription = #{noteDescription} WHERE noteid = #{noteId}")
     int updateNote(Note note);
 
     @Delete("DELETE FROM notes WHERE noteid = #{noteId} AND userid = #{userId}")

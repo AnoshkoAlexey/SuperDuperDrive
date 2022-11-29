@@ -26,7 +26,7 @@ public class CredentialController {
         this.encryptionService = encryptionService;
     }
 
-    @PostMapping("/credential")
+    @PostMapping("/submit")
     public String insert(@ModelAttribute Credential credential, Authentication authentication){
 
         User user = userService.selectByName(authentication.getName());
@@ -49,9 +49,9 @@ public class CredentialController {
         }
 
         if (status) {
-            return "redirect:/result?success&message=Credental were saved";
+            return "redirect:/result?success&message=The credential is saved";
         } else {
-            return "redirect:/result?error&message=Unable to save credential";
+            return "redirect:/result?error&message=The credential can not be saved";
         }
     }
 
@@ -63,9 +63,9 @@ public class CredentialController {
         Boolean status = credentialService.delete(credentialId, user.getUserId());
 
         if (status) {
-            return "redirect:/result?success&message=Credential were created";
+            return "redirect:/result?success&message=The credential is deleted";
         } else {
-            return "redirect:/result?error&message=Unable to delete credential";
+            return "redirect:/result?error&message=The credential can not be deleted";
         }
     }
 }

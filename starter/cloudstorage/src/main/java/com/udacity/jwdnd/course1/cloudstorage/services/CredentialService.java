@@ -6,6 +6,7 @@ import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CredentialService {
@@ -20,7 +21,10 @@ public class CredentialService {
 
     public Boolean insert(Credential credential) { return credentialMapper.insert(credential) == 1; }
 
-    public List<Credential> selectByUser(User user) { return credentialMapper.selectByUser(user); }
+    public List<Credential> selectByUser(User user) {
+        List<Credential> credential = credentialMapper.selectByUser(user);
+        return credential.stream().map(this::decryptPassword).collect(Collectors.toList());
+    }
 
     public List<Credential> selectByUserId(Integer userId) { return credentialMapper.selectByUserId(userId); }
 
@@ -31,5 +35,10 @@ public class CredentialService {
     public Boolean update(Credential credential) { return credentialMapper.update(credential) == 1; }
 
     public Boolean delete(Integer credentialId, Integer userId) { return credentialMapper.delete(credentialId, userId) == 1; }
+
+    public Credential decryptPassword(Credential credential) {
+        credential.setDecryptedPassword(encryptionService.decryptValue(credential.getPassword(), credential.getKey()));
+        return credential;
+    }
 
 }

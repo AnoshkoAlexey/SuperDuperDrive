@@ -21,7 +21,7 @@ public class NoteController {
         this.userService = userService;
     }
 
-    @PostMapping("/insert")
+    @PostMapping("/submit")
     public String insert(@ModelAttribute Note note, Authentication authentication) {
 
         User user = userService.selectByName(authentication.getName());

@@ -39,7 +39,7 @@ public class FileController {
 
     }
 
-    @GetMapping("/fileId}")
+    @GetMapping("/{fileId}")
     public ResponseEntity<byte[]> selectById(@PathVariable("fileId") Integer fileId, Authentication authentication) {
 
         User user = userService.selectByName(authentication.getName());

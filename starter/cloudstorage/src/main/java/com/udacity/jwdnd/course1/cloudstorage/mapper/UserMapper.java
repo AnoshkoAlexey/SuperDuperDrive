@@ -10,12 +10,12 @@ public interface UserMapper {
     @Options(useGeneratedKeys = true, keyProperty = "userId")
     int insert(User user);
 
-    @Select("SELECT * FROM USERS WHERE username = #{userid}")
+    @Select("SELECT * FROM USERS WHERE username = #{userId}")
     User selectById(Integer userId);
 
     @Select("SELECT * FROM USERS WHERE username = #{username}")
     User selectByName(String username);
 
-    @Delete("DELETE FROM users WHERE userid = #{id}")
-    void delete(Integer id);
+    @Delete("DELETE FROM users WHERE userid = #{userId}")
+    void delete(Integer userId);
 }

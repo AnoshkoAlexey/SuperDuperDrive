@@ -1,9 +1,10 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
+import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
+import com.udacity.jwdnd.course1.cloudstorage.model.Note;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -88,8 +89,6 @@ class CloudStorageApplicationTests {
 		*/
 		Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
 	}
-
-	
 	
 	/**
 	 * PLEASE DO NOT DELETE THIS method.
@@ -200,6 +199,205 @@ class CloudStorageApplicationTests {
 
 	}
 
+	// New Selenium tests
+	@Test
+	public void testUnauthorizedUserAccess() {
 
+		driver.get("http://localhost:" + this.port + "/login");
+		Assertions.assertEquals("http://localhost:" + this.port + "/login", driver.getCurrentUrl());
+
+		driver.get("http://localhost:" + this.port + "/signup");
+		Assertions.assertEquals("http://localhost:" + this.port + "/signup", driver.getCurrentUrl());
+
+		driver.get("http://localhost:" + this.port + "/home");
+		Assertions.assertNotEquals("http://localhost:" + this.port + "/home", driver.getCurrentUrl());
+
+		Assertions.assertEquals("http://localhost:" + this.port + "/login", driver.getCurrentUrl());
+	}
+
+	@Test
+	public void testHomePageAccess() {
+
+		doMockSignUp("HomePageAccess", "test", "HomePageAccess", "123");
+		doLogIn("HomePageAccess", "123");
+		driver.get("http://localhost:" + this.port + "/home");
+		Assertions.assertEquals("http://localhost:" + this.port + "/home", driver.getCurrentUrl());
+		Assertions.assertEquals("Home", driver.getTitle());
+
+		assert driver.getTitle().equals("Home");
+		driver.findElement(By.id("logout-button")).click();
+
+		driver.get("http://localhost:" + this.port + "/home");
+		Assertions.assertNotEquals("http://localhost:" + this.port + "/home", driver.getCurrentUrl());
+		Assertions.assertNotEquals("Home", driver.getTitle());
+	}
+
+	@Test
+	public void testNoteCreation() throws InterruptedException {
+		doMockSignUp("NoteCreation", "test", "NoteCreation", "123");
+		doLogIn("NoteCreation", "123");
+
+		String title = "title";
+		String description = "description";
+
+		HomePage homePage = new HomePage(driver);
+		homePage.goToNotesTab();
+		homePage.createNote(title, description);
+
+		driver.get("http://localhost:" + this.port + "/home");
+		homePage = new HomePage(driver);
+		homePage.goToNotesTab();
+		Note note = homePage.getNote();
+
+		Assertions.assertEquals(title, note.getNoteTitle());
+		Assertions.assertEquals(description, note.getNoteDescription());
+	}
+
+	@Test
+	public void testNoteEdition() throws InterruptedException {
+
+		doMockSignUp("NoteEdition", "test", "NoteEdition", "123");
+		doLogIn("NoteEdition", "123");
+
+		String title = "title";
+		String description = "description";
+		String newTitle = "new title!";
+		String newDescription = "new description!";
+
+		HomePage homePage = new HomePage(driver);
+		homePage.goToNotesTab();
+		homePage.createNote(title, description);
+
+		driver.get("http://localhost:" + this.port + "/home");
+		homePage = new HomePage(driver);
+		homePage.goToNotesTab();
+		homePage.editNote(newTitle, newDescription);
+
+		driver.get("http://localhost:" + this.port + "/home");
+		homePage = new HomePage(driver);
+		homePage.goToNotesTab();
+		Note newNote = homePage.getNote();
+
+		Assertions.assertEquals(newTitle, newNote.getNoteTitle());
+		Assertions.assertEquals(newDescription, newNote.getNoteDescription());
+	}
+
+	@Test
+	public void testNoteDeletion() throws InterruptedException {
+
+		doMockSignUp("NoteDeletion", "test", "NoteDeletion", "123");
+		doLogIn("NoteDeletion", "123");
+
+		String testTitle = "title";
+		String testDescription = "description";
+
+		HomePage homePage = new HomePage(driver);
+		homePage.goToNotesTab();
+		homePage.createNote(testTitle, testDescription);
+
+		driver.get("http://localhost:" + this.port + "/home");
+		homePage = new HomePage(driver);
+		homePage.goToNotesTab();
+		homePage.deleteNote();
+
+		driver.get("http://localhost:" + this.port + "/home");
+		homePage = new HomePage(driver);
+		homePage.goToNotesTab();
+		Note note = homePage.getNote();
+
+		Assertions.assertNull(note);
+	}
+
+	@Test
+	public void testCredentialCreation() throws InterruptedException {
+
+		doMockSignUp("CredentialCreation", "test", "CredentialCreation", "123");
+		doLogIn("CredentialCreation", "123");
+
+		String url = "http:test.com";
+		String userName = "user";
+		String password = "password";
+
+		HomePage homePage = new HomePage(driver);
+		homePage.goToCredentialsTab();
+		homePage.createCredential(url, userName, password);
+
+		driver.get("http://localhost:" + this.port + "/home");
+		homePage = new HomePage(driver);
+		homePage.goToCredentialsTab();
+		Credential credential = homePage.getCredentialEncrypted();
+
+		Assertions.assertEquals(url, credential.getUrl());
+		Assertions.assertEquals(userName, credential.getUsername());
+
+		Assertions.assertNotEquals(password, credential.getPassword());
+	}
+
+	@Test
+	public void testCredentialEdition() throws InterruptedException {
+
+		doMockSignUp("CredentialEdition", "test", "CredentialEdition", "123");
+		doLogIn("CredentialEdition", "123");
+
+		String url = "url";
+		String username = "username";
+		String password = "password";
+		String newURL = "newUrl";
+		String newUsername = "new username";
+		String newPassword = "new password";
+
+		HomePage homePage = new HomePage(driver);
+		homePage.goToCredentialsTab();
+		homePage.createCredential(url, username, password);
+
+		driver.get("http://localhost:" + this.port + "/home");
+		homePage = new HomePage(driver);
+		homePage.goToCredentialsTab();
+		Credential credential = homePage.getCredentialDecrypted();
+
+		Assertions.assertEquals(url, credential.getUrl());
+		Assertions.assertEquals(username, credential.getUsername());
+		Assertions.assertEquals(password, credential.getPassword());
+
+		driver.get("http://localhost:" + this.port + "/home");
+		homePage = new HomePage(driver);
+		homePage.goToCredentialsTab();
+		homePage.editCredential(newURL, newUsername, newPassword);
+
+		driver.get("http://localhost:" + this.port + "/home");
+		homePage = new HomePage(driver);
+		homePage.goToCredentialsTab();
+		Credential newCredential = homePage.getCredentialDecrypted();
+
+		Assertions.assertEquals(newURL, newCredential.getUrl());
+		Assertions.assertEquals(newUsername, newCredential.getUsername());
+		Assertions.assertEquals(newPassword, newCredential.getPassword());
+	}
+
+	@Test
+	public void testCredentialDeletion() throws InterruptedException {
+		doMockSignUp("CredentialDeletion", "test", "CredentialDeletion", "123");
+		doLogIn("CredentialDeletion", "123");
+
+		String url = "url";
+		String username = "username";
+		String password = "password";
+
+		HomePage homePage = new HomePage(driver);
+		homePage.goToCredentialsTab();
+		homePage.createCredential(url, username, password);
+
+		driver.get("http://localhost:" + this.port + "/home");
+		homePage = new HomePage(driver);
+		homePage.goToCredentialsTab();
+		homePage.deleteCredential();
+
+		driver.get("http://localhost:" + this.port + "/home");
+		homePage = new HomePage(driver);
+		homePage.goToCredentialsTab();
+		Credential credential = homePage.getCredentialEncrypted();
+
+		Assertions.assertNull(credential);
+	}
 
 }
